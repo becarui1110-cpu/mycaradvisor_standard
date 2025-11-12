@@ -38,7 +38,7 @@ async function makeToken(secret: string, minutes: number) {
 
 export async function POST(req: Request) {
   const tokenSecret = process.env.TOKEN_SECRET;
-  const siteUrl = (process.env.SITE_URL || "https://premium.mycaradvisor.ch").replace(
+  const siteUrl = (process.env.SITE_URL || "https://standard.mycaradvisor.ch").replace(
     /\/$/,
     ""
   );
