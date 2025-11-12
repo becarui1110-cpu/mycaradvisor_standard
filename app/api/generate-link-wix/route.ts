@@ -76,7 +76,7 @@ export async function POST(req: Request) {
 export async function GET() {
   return new Response(
     JSON.stringify({
-      message: "Use POST with JSON body: { \"duration\": 60 }",
+      message: "Use POST with JSON body: { \"duration\": 720 }",
     }),
     { status: 405, headers: { "content-type": "application/json" } }
   );
