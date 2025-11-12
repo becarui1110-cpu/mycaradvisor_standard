@@ -1,13 +1,13 @@
 import { ColorScheme, StartScreenPrompt, ThemeOption } from "@openai/chatkit";
 
 /** === ⚙️ Configuration générale === */
-export const APP_NAME = "MyCarAdvisor Premium";
+export const APP_NAME = "MyCarAdvisor Standard";
 
 export const WORKFLOW_ID =
   process.env.NEXT_PUBLIC_CHATKIT_WORKFLOW_ID?.trim() ?? "";
 
 export const CREATE_SESSION_ENDPOINT = "/api/create-session";
-export const PLAN = "premium";
+export const PLAN = "standard";
 
 /** === 🧠 Prompts rapides visibles sur l’écran d’accueil === */
 export const STARTER_PROMPTS: StartScreenPrompt[] = [
