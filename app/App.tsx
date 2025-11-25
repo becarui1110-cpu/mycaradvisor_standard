@@ -1,6 +1,7 @@
+// app/App.tsx
 "use client";
 
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ChatKitPanel, type FactAction } from "@/components/ChatKitPanel";
 import { useColorScheme } from "@/hooks/useColorScheme";
 
@@ -32,4 +33,22 @@ export default function App() {
       <div className="flex-1 relative min-h-0">
         {ready ? (
           <ChatKitPanel
-            theme={
+            theme={scheme}
+            onWidgetAction={handleWidgetAction}
+            onResponseEnd={handleResponseEnd}
+            onThemeRequest={setScheme}
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center bg-slate-950/40">
+            <div className="flex flex-col items-center gap-3">
+              <div className="h-8 w-8 rounded-full border-2 border-slate-600 border-t-transparent animate-spin" />
+              <p className="text-xs text-slate-400">
+                Initialisation de l’assistant…
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
