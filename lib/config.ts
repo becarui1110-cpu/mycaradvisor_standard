@@ -32,17 +32,15 @@ export const STARTER_PROMPTS: StartScreenPrompt[] = [
 ];
 
 /** === 💬 Texte par défaut dans la barre de saisie === */
-export const PLACEHOLDER_INPUT = "Posez votre question (Premium)";
+export const PLACEHOLDER_INPUT = "Posez votre question (Standard)";
 
 /** === 👋 Message d’accueil du chatbot ===
  * -> le markdown ** ... ** mettra bien le début en gras
  */
 export const GREETING =
-  "**Bonjour 👋 et bienvenue sur MyCarAdvisor Premium.** Posez-moi vos questions sur la fiabilité, l’entretien, la valeur de votre véhicule, et profitez d’analyses détaillées.";
+  "**Bonjour 👋 et bienvenue sur MyCarAdvisor Standard.** Posez-moi vos questions sur la fiabilité, l’entretien et la valeur de votre véhicule pour obtenir des réponses claires et synthétiques.";
 
-/** === 🎨 Thème du chat (palette Premium) ===
- * On reste dans les props que ta version de @openai/chatkit connaît.
- */
+/** === 🎨 Thème du chat (palette Standard) === */
 export const getThemeConfig = (theme: ColorScheme): ThemeOption => ({
   color: {
     grayscale: {
@@ -51,7 +49,7 @@ export const getThemeConfig = (theme: ColorScheme): ThemeOption => ({
       shade: theme === "dark" ? -1 : -4,
     },
     accent: {
-      // vert premium
+      // vert standard
       primary: theme === "dark" ? "#00c58e" : "#0f766e",
       level: 1,
     },
