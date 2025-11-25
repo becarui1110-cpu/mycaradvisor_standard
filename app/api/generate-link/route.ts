@@ -1,7 +1,9 @@
-// app/api/generate-link/route.ts  (STANDARD 12h)
+// app/api/generate-link/route.ts  (STANDARD)
 export const runtime = "edge";
 
 const encoder = new TextEncoder();
+const DEFAULT_DURATION_MINUTES = 12 * 60; // 12h par défaut
+const MAX_DURATION_MINUTES = 12 * 60;     // optionnel: cap à 12h
 
 function toBase64Url(buffer: ArrayBuffer) {
   const bytes = new Uint8Array(buffer);
@@ -12,7 +14,28 @@ function toBase64Url(buffer: ArrayBuffer) {
   return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-async function buildLink(secret: string, durationMinutes: number) {
+export async function GET(request: Request) {
+  const secret = process.env.TOKEN_SECRET;
+  if (!secret) {
+    return new Response(
+      JSON.stringify({ error: "TOKEN_SECRET manquant dans Vercel" }),
+      { status: 500, headers: { "content-type": "application/json" } }
+    );
+  }
+
+  const { searchParams } = new URL(request.url);
+
+  // ✅ durée choisie dans l’admin, sinon défaut 12h
+  let durationMinutes = Number(searchParams.get("duration") || DEFAULT_DURATION_MINUTES);
+
+  // ✅ sécurité : éviter NaN / valeurs négatives
+  if (!Number.isFinite(durationMinutes) || durationMinutes <= 0) {
+    durationMinutes = DEFAULT_DURATION_MINUTES;
+  }
+
+  // ✅ optionnel: on limite à 12h max pour Standard
+  durationMinutes = Math.min(durationMinutes, MAX_DURATION_MINUTES);
+
   const expiresAt = Date.now() + durationMinutes * 60 * 1000;
 
   const key = await crypto.subtle.importKey(
@@ -33,45 +56,10 @@ async function buildLink(secret: string, durationMinutes: number) {
   const token = `${expiresAt}.${signature}`;
 
   const siteUrl = "https://standard.mycaradvisor.ch";
-  return `${siteUrl}/?token=${token}`;
-}
+  const link = `${siteUrl}/?token=${token}`;
 
-type JsonBody = Record<string, unknown>;
-
-function json(body: JsonBody, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
+  return new Response(JSON.stringify({ link, durationMinutes }), {
+    status: 200,
     headers: { "content-type": "application/json" },
   });
-}
-
-// ✅ GET (comme avant)
-export async function GET() {
-  const secret = process.env.TOKEN_SECRET;
-  if (!secret) return json({ error: "TOKEN_SECRET manquant dans Vercel" }, 500);
-
-  const durationMinutes = 12 * 60; // 12h fixes
-  const link = await buildLink(secret, durationMinutes);
-
-  return json({ link });
-}
-
-// ✅ POST (pour l’admin-panel)
-export async function POST(request: Request) {
-  const secret = process.env.TOKEN_SECRET;
-  if (!secret) return json({ error: "TOKEN_SECRET manquant dans Vercel" }, 500);
-
-  let durationMinutes = 12 * 60; // défaut Standard = 12h
-
-  // body optionnel: { durationMinutes: number }
-  try {
-    const body = (await request.json()) as JsonBody;
-    const d = Number(body.durationMinutes);
-    if (Number.isFinite(d) && d > 0) durationMinutes = d;
-  } catch {
-    // pas de body -> on garde 12h
-  }
-
-  const link = await buildLink(secret, durationMinutes);
-  return json({ link });
 }
