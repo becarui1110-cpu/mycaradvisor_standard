@@ -5,7 +5,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import App from "./App";
 
-const LINK_TTL_HOURS = 24; // durée totale du lien Standard
+const LINK_TTL_HOURS = 12; // durée totale du lien Standard (affichage)
 
 type TimeParts = {
   hours: string;
@@ -89,7 +89,9 @@ function HomeInner() {
               <p className="text-sm uppercase tracking-wide text-slate-300">
                 MyCarAdvisor
               </p>
-              <p className="text-base font-semibold">Agent IA Premium</p>
+              <p className="text-base font-semibold">
+                Agent IA <span className="text-emerald-300">Standard</span>
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2 text-sm text-slate-300">
@@ -108,7 +110,7 @@ function HomeInner() {
         <section className="bg-slate-900/40 border border-slate-800 rounded-2xl min-h-[520px] flex flex-col overflow-hidden">
           <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800">
             <div>
-              <h1 className="text-lg font-semibold">Votre assistant premium</h1>
+              <h1 className="text-lg font-semibold">Votre assistant Standard</h1>
               <p className="text-sm text-slate-400">
                 Posez vos questions sur le véhicule, les coûts, les options…
               </p>
@@ -149,7 +151,7 @@ function HomeInner() {
                 Temps restant avant expiration
               </p>
 
-              {/* ✅ TIMER */}
+              {/* TIMER */}
               <div className="flex items-center justify-center gap-2 font-mono text-2xl font-semibold">
                 <span>{hasData ? timeParts.hours : "--"}</span>:
                 <span>{hasData ? timeParts.minutes : "--"}</span>:
@@ -162,7 +164,7 @@ function HomeInner() {
                   : "Synchronisation du lien…"}
               </p>
 
-              {/* ✅ Progress bar */}
+              {/* Progress bar */}
               <div className="h-1.5 rounded-full bg-slate-800 overflow-hidden">
                 <div
                   className="h-full bg-emerald-400 transition-transform duration-500 origin-left"
@@ -195,10 +197,10 @@ function HomeInner() {
 
           <div className="bg-gradient-to-r from-emerald-500/15 to-slate-900/0 border border-emerald-500/20 rounded-2xl p-4">
             <p className="text-xs uppercase tracking-wide text-emerald-200 mb-1">
-              Premium activé
+              Standard activé
             </p>
             <p className="text-sm text-slate-100">
-              Vous avez accès aux fonctionnalités avancées de l’agent.
+              Vous avez accès aux fonctionnalités standard de l’agent.
             </p>
           </div>
         </aside>
