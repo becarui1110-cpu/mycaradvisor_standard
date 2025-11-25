@@ -1,4 +1,4 @@
-// app/api/generate-link/route.ts
+// app/api/generate-link/route.ts  (STANDARD 12h)
 export const runtime = "edge";
 
 const encoder = new TextEncoder();
@@ -12,18 +12,7 @@ function toBase64Url(buffer: ArrayBuffer) {
   return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-export async function GET(request: Request) {
-  const secret = process.env.TOKEN_SECRET;
-  if (!secret) {
-    return new Response(
-      JSON.stringify({ error: "TOKEN_SECRET manquant dans Vercel" }),
-      { status: 500, headers: { "content-type": "application/json" } }
-    );
-  }
-
-  // ⏱️ STANDARD = durée fixée à 12 heures
-  const durationMinutes = 12 * 60; // = 720 minutes
-
+async function buildLink(secret: string, durationMinutes: number) {
   const expiresAt = Date.now() + durationMinutes * 60 * 1000;
 
   const key = await crypto.subtle.importKey(
@@ -41,15 +30,47 @@ export async function GET(request: Request) {
   );
 
   const signature = toBase64Url(signatureBuffer);
-
   const token = `${expiresAt}.${signature}`;
 
-  // 🌐 URL de la version Standard
   const siteUrl = "https://standard.mycaradvisor.ch";
-  const link = `${siteUrl}/?token=${token}`;
+  return `${siteUrl}/?token=${token}`;
+}
 
-  return new Response(JSON.stringify({ link }), {
-    status: 200,
+function json(resBody: any, status = 200) {
+  return new Response(JSON.stringify(resBody), {
+    status,
     headers: { "content-type": "application/json" },
   });
+}
+
+// ✅ GET (comme avant)
+export async function GET() {
+  const secret = process.env.TOKEN_SECRET;
+  if (!secret) return json({ error: "TOKEN_SECRET manquant dans Vercel" }, 500);
+
+  const durationMinutes = 12 * 60; // 12h fixes
+  const link = await buildLink(secret, durationMinutes);
+
+  return json({ link });
+}
+
+// ✅ POST (pour l’admin-panel)
+export async function POST(request: Request) {
+  const secret = process.env.TOKEN_SECRET;
+  if (!secret) return json({ error: "TOKEN_SECRET manquant dans Vercel" }, 500);
+
+  // par défaut Standard = 12h
+  let durationMinutes = 12 * 60;
+
+  // si ton admin envoie un body optionnel { durationMinutes: number }
+  try {
+    const body = await request.json();
+    const d = Number(body?.durationMinutes);
+    if (Number.isFinite(d) && d > 0) durationMinutes = d;
+  } catch {
+    // pas de body -> on garde 12h
+  }
+
+  const link = await buildLink(secret, durationMinutes);
+  return json({ link });
 }
