@@ -36,8 +36,10 @@ async function buildLink(secret: string, durationMinutes: number) {
   return `${siteUrl}/?token=${token}`;
 }
 
-function json(resBody: any, status = 200) {
-  return new Response(JSON.stringify(resBody), {
+type JsonBody = Record<string, unknown>;
+
+function json(body: JsonBody, status = 200) {
+  return new Response(JSON.stringify(body), {
     status,
     headers: { "content-type": "application/json" },
   });
@@ -59,13 +61,12 @@ export async function POST(request: Request) {
   const secret = process.env.TOKEN_SECRET;
   if (!secret) return json({ error: "TOKEN_SECRET manquant dans Vercel" }, 500);
 
-  // par défaut Standard = 12h
-  let durationMinutes = 12 * 60;
+  let durationMinutes = 12 * 60; // défaut Standard = 12h
 
-  // si ton admin envoie un body optionnel { durationMinutes: number }
+  // body optionnel: { durationMinutes: number }
   try {
-    const body = await request.json();
-    const d = Number(body?.durationMinutes);
+    const body = (await request.json()) as JsonBody;
+    const d = Number(body.durationMinutes);
     if (Number.isFinite(d) && d > 0) durationMinutes = d;
   } catch {
     // pas de body -> on garde 12h
