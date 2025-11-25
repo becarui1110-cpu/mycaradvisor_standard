@@ -21,7 +21,7 @@ export async function GET(request: Request) {
     );
   }
 
-  // ✅ FIXÉ À 12 HEURES
+  // ⏱️ STANDARD = durée fixée à 12 heures
   const durationMinutes = 12 * 60; // = 720 minutes
 
   const expiresAt = Date.now() + durationMinutes * 60 * 1000;
@@ -44,9 +44,8 @@ export async function GET(request: Request) {
 
   const token = `${expiresAt}.${signature}`;
 
-  // ⚠️ Ici tu dois mettre l’URL du STANDARD (pas Premium)
+  // 🌐 URL de la version Standard
   const siteUrl = "https://standard.mycaradvisor.ch";
-
   const link = `${siteUrl}/?token=${token}`;
 
   return new Response(JSON.stringify({ link }), {
